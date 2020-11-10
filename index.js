@@ -102,6 +102,19 @@ const run = async () => {
             deployment_id: deployment.id,
             token: GITHUB_TOKEN
         }, MAX_TIMEOUT)
+        
+        const allDeployments = deployment.map(async (aDeployment) => {
+            const aDeploymentStatus = await waitForStatus({ 
+                owner,
+                repo,
+                deployment_id: aDeployment.id,
+                token: GITHUB_TOKEN
+            }, MAX_TIMEOUT)
+            return aDeploymentStatus
+        })
+        
+        const allDeploymentsStatus = Promise.all(allDeployments)
+        console.log(allDeploymentsStatus)
 
         // Get target url
         const targetUrl = status.target_url
