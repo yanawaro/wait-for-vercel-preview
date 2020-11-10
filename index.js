@@ -103,7 +103,7 @@ const run = async () => {
             token: GITHUB_TOKEN
         }, MAX_TIMEOUT)
         
-        const allDeployments = deployments.map(async (aDeployment) => {
+        const allDeployments = deployments.data.map(async (aDeployment) => {
             const aDeploymentStatus = await waitForStatus({ 
                 owner,
                 repo,
