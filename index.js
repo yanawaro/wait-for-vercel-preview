@@ -134,12 +134,14 @@ const run = async () => {
                 return target_url.includes(project)
             })
             targetUrls[project] = deploymentUrl.target_url
+            // Set output
+            core.setOutput(project, deploymentUrl.target_url)
         })
 
         console.log('target urls »', targetUrls)
 
         // Set output
-        core.setOutput('urls', targetUrls)
+        // core.setOutput('urls', targetUrls)
         
         const waitForallTargetUrls = allDeploymentsStatus.map(async ({target_url}) => {
             console.log(`Waiting for a status code 200 from: ${target_url}`);
