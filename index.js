@@ -113,7 +113,7 @@ const run = async () => {
             return aDeploymentStatus
         })
         
-        const allDeploymentsStatus = Promise.all(allDeployments)
+        const allDeploymentsStatus = await Promise.all(allDeployments)
         console.log(allDeploymentsStatus)
 
         // Get target url
