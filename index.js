@@ -117,16 +117,23 @@ const run = async () => {
         console.log(allDeploymentsStatus)
 
         // Get target url
-        const targetUrl = status.target_url
+        const targetUrls = allDeploymentsStatus.map(({target_url}) => target_url)
 
-        console.log('target url »', targetUrl)
+        console.log('target urls »', targetUrls)
 
         // Set output
-        core.setOutput('url', targetUrl);
-
+        core.setOutput('urls', targetUrls)
+        
+        const waitForallTargetUrls = targetUrls.map(async (url) => {
+            console.log(`Waiting for a status code 200 from: ${url}`);
+            const urlStatus = await waitForUrl(url, MAX_TIMEOUT);
+            return urlStatus
+        })
         // Wait for url to respond with a sucess
-        console.log(`Waiting for a status code 200 from: ${targetUrl}`);
-        await waitForUrl(targetUrl, MAX_TIMEOUT);
+        // console.log(`Waiting for a status code 200 from: ${targetUrl}`);
+        // await waitForUrl(targetUrl, MAX_TIMEOUT);
+        
+        const urlStatusOk = await Promise.all(waitForallTargetUrls)
 
     } catch (error) {
         core.setFailed(error.message);
