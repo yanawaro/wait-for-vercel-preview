@@ -120,11 +120,17 @@ const run = async () => {
         console.log(allDeploymentsStatus)
 
         // Get target url
-        const targetUrls = allDeploymentsStatus.map(({target_url, environment}) => {
-            const vercelProject = environment.split(' ')[2]
-            return {
-                [vercelProject]: target_url
-            }
+//         const targetUrls = allDeploymentsStatus.map(({target_url}) => {
+//             const vercelProject = environment.split(' ')[2]
+//             return {
+//                 [vercelProject]: target_url
+//             }
+//         })
+        
+        const targetUrls = {}
+        projects.forEach(project => {
+            const deploymentUrl = allDeploymentsStatus.filter({target_url} => target_url.includes(project))
+            targetUrls[project] = deploymentUrl
         })
 
         console.log('target urls »', targetUrls)
