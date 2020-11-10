@@ -117,16 +117,21 @@ const run = async () => {
         console.log(allDeploymentsStatus)
 
         // Get target url
-        const targetUrls = allDeploymentsStatus.map(({target_url}) => target_url)
+        const targetUrls = allDeploymentsStatus.map(({target_url, environment}) => {
+            const vercelProject = environment.split(' ')[2]
+            return {
+                [vercelProject]: target_url
+            }
+        })
 
         console.log('target urls »', targetUrls)
 
         // Set output
         core.setOutput('urls', targetUrls)
         
-        const waitForallTargetUrls = targetUrls.map(async (url) => {
-            console.log(`Waiting for a status code 200 from: ${url}`);
-            const urlStatus = await waitForUrl(url, MAX_TIMEOUT);
+        const waitForallTargetUrls = allDeploymentsStatus.map(({target_url}) => {
+            console.log(`Waiting for a status code 200 from: ${target_url}`);
+            const urlStatus = await waitForUrl(target_url, MAX_TIMEOUT);
             return urlStatus
         })
         // Wait for url to respond with a sucess
