@@ -129,7 +129,7 @@ const run = async () => {
         // Set output
         core.setOutput('urls', targetUrls)
         
-        const waitForallTargetUrls = allDeploymentsStatus.map(({target_url}) => {
+        const waitForallTargetUrls = allDeploymentsStatus.map(async ({target_url}) => {
             console.log(`Waiting for a status code 200 from: ${target_url}`);
             const urlStatus = await waitForUrl(target_url, MAX_TIMEOUT);
             return urlStatus
