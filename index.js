@@ -93,7 +93,7 @@ const run = async () => {
             repo,
             sha: prSHA
         })
-
+        console.log(deployments)
         const deployment = deployments.data.length > 0 && deployments.data[0];
 
         const status = await waitForStatus({ 
