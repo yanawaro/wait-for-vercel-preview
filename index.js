@@ -129,7 +129,7 @@ const run = async () => {
         
         const targetUrls = {}
         projects.forEach(project => {
-            const deploymentUrl = allDeploymentsStatus.filter({target_url} => target_url.includes(project))
+            const deploymentUrl = allDeploymentsStatus.filter(({target_url}) => target_url.includes(project))
             targetUrls[project] = deploymentUrl
         })
 
