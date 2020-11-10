@@ -57,7 +57,8 @@ const run = async () => {
         const GITHUB_TOKEN = core.getInput('token', { required: true })
         const MAX_TIMEOUT = Number(core.getInput("max_timeout")) || 60;
         const PROJECTS = core.getInput('projects', { required: true })
-        console.log(PROJECTS[0], PROJECTS[1])
+        const projects = JSON.parse(PROJECTS)
+        console.log(projects)
 
         // Fail if we have don't have a github token
         if (!GITHUB_TOKEN) {
