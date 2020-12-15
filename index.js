@@ -56,6 +56,9 @@ const run = async () => {
         // Inputs
         const GITHUB_TOKEN = core.getInput('token', { required: true })
         const MAX_TIMEOUT = Number(core.getInput("max_timeout")) || 60;
+        const PROJECTS = core.getInput('projects', { required: true })
+        const projects = JSON.parse(PROJECTS)
+        console.log(projects)
 
         // Fail if we have don't have a github token
         if (!GITHUB_TOKEN) {
@@ -93,7 +96,7 @@ const run = async () => {
             repo,
             sha: prSHA
         })
-
+        console.log(deployments)
         const deployment = deployments.data.length > 0 && deployments.data[0];
 
         const status = await waitForStatus({ 
@@ -102,18 +105,54 @@ const run = async () => {
             deployment_id: deployment.id,
             token: GITHUB_TOKEN
         }, MAX_TIMEOUT)
+        
+        const allDeployments = deployments.data.map(async (aDeployment) => {
+            const aDeploymentStatus = await waitForStatus({ 
+                owner,
+                repo,
+                deployment_id: aDeployment.id,
+                token: GITHUB_TOKEN
+            }, MAX_TIMEOUT)
+            return aDeploymentStatus
+        })
+        
+        const allDeploymentsStatus = await Promise.all(allDeployments)
+        console.log(allDeploymentsStatus)
 
         // Get target url
-        const targetUrl = status.target_url
+//         const targetUrls = allDeploymentsStatus.map(({target_url}) => {
+//             const vercelProject = environment.split(' ')[2]
+//             return {
+//                 [vercelProject]: target_url
+//             }
+//         })
+        
+        const targetUrls = {}
+        projects.forEach(project => {
+            const deploymentUrl = allDeploymentsStatus.find(({target_url}) => {
+                console.log(target_url, project, target_url.includes(project))
+                return target_url.includes(project)
+            })
+            targetUrls[project] = deploymentUrl.target_url
+            // Set output
+            core.setOutput(project, deploymentUrl.target_url)
+        })
 
-        console.log('target url »', targetUrl)
+        console.log('target urls »', targetUrls)
 
         // Set output
-        core.setOutput('url', targetUrl);
-
+        // core.setOutput('urls', targetUrls)
+        
+        const waitForallTargetUrls = allDeploymentsStatus.map(async ({target_url}) => {
+            console.log(`Waiting for a status code 200 from: ${target_url}`);
+            const urlStatus = await waitForUrl(target_url, MAX_TIMEOUT);
+            return urlStatus
+        })
         // Wait for url to respond with a sucess
-        console.log(`Waiting for a status code 200 from: ${targetUrl}`);
-        await waitForUrl(targetUrl, MAX_TIMEOUT);
+        // console.log(`Waiting for a status code 200 from: ${targetUrl}`);
+        // await waitForUrl(targetUrl, MAX_TIMEOUT);
+        
+        const urlStatusOk = await Promise.all(waitForallTargetUrls)
 
     } catch (error) {
         core.setFailed(error.message);
